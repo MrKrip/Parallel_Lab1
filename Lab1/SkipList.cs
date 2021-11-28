@@ -198,36 +198,40 @@ namespace Lab1
                     }
                 }
 
-                if(tempNode.previous==null)
+                if (tempNode.Value.CompareTo(Value)==0)
                 {
-                    for(int i=0;i<MaxLevel;i++)
+                    if (tempNode.previous == null)
                     {
-                        if(tempNode==null)
+                        for (int i = 0; i < MaxLevel; i++)
                         {
-                            break;
+                            if (tempNode == null)
+                            {
+                                break;
+                            }
+                            Levels[i] = tempNode.next;
+                            tempNode.next.previous = null;
+                            tempNode = tempNode.above;
                         }
-                        Levels[i] = tempNode.next;
-                        tempNode.next.previous = null;
-                        tempNode = tempNode.above;
                     }
-                }
-                else
-                {
-                    
-                    for (int i = 0; i < MaxLevel; i++)
+                    else
                     {
-                        if (tempNode == null)
-                        {
-                            break;
-                        }
-                        var next = tempNode.next;
-                        var prev = tempNode.previous;
-                        next.previous = prev;
-                        prev.next = next;
-                        tempNode = tempNode.above;
-                    }
 
+                        for (int i = 0; i < MaxLevel; i++)
+                        {
+                            if (tempNode == null)
+                            {
+                                break;
+                            }
+                            var next = tempNode.next;
+                            var prev = tempNode.previous;
+                            next.previous = prev;
+                            prev.next = next;
+                            tempNode = tempNode.above;
+                        }
+
+                    }
                 }
+
             }
         }
     }
