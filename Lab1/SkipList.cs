@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Lab1
@@ -48,7 +49,7 @@ namespace Lab1
                     {
                         tempNode = Levels[i];
                     }
-                    if (Levels[i] != null)
+                    if (tempNode != null)
                     {
                         if (tempNode.Value.CompareTo(Val) >= 0)
                         {
@@ -85,13 +86,9 @@ namespace Lab1
                             }
                         }
                     }
-                    else
-                    {
-                        tempNode = Levels[i];
-                    }
                 }
 
-                if (tempNode.next == null)
+                if (tempNode.next == null && tempNode.Value.CompareTo(Val) < 0)
                 {
                     var next = tempNode.next;
                     NewNode.next = next;
@@ -101,9 +98,13 @@ namespace Lab1
                 else
                 {
                     var prev = tempNode.previous;
-                    tempNode.previous = NewNode;
                     NewNode.previous = prev;
+                    tempNode.previous = NewNode;
                     NewNode.next = tempNode;
+                    if (prev != null)
+                    {
+                        prev.next = NewNode;
+                    }
                     if (NewNode.previous == null)
                     {
                         Levels[0] = NewNode;
@@ -116,27 +117,34 @@ namespace Lab1
             {
                 if (_rand.Next(10) % 2 == 0)
                 {
-                    break;
+                    return;
                 }
 
                 Node temp = new Node(Val);
                 tempNode.above = temp;
                 temp.below = tempNode;
-                if (Levels[i] == null)
+                if (Levels[i] == null || TempNodes[i] == null)
                 {
                     Levels[i] = temp;
+                    tempNode = temp;
                 }
-                else if (TempNodes[i].previous == null)
+                else if (TempNodes[i].Value.CompareTo(Val) >= 0)
                 {
                     temp.next = TempNodes[i];
+                    temp.previous = TempNodes[i].previous;
                     TempNodes[i].previous = temp;
-                    Levels[i] = temp;
+                    if (temp.previous == null)
+                    {
+                        Levels[i] = temp;
+                    }
+                    tempNode = temp;
                 }
                 else
                 {
                     temp.next = TempNodes[i].next;
                     temp.previous = TempNodes[i];
                     TempNodes[i].next = temp;
+                    tempNode = temp;
                 }
             }
 
@@ -159,7 +167,7 @@ namespace Lab1
                         {
                             tempNode = Levels[i];
                         }
-                        if (tempNode.Value.CompareTo(Value) == 0 && i != 0)
+                        if (tempNode.Value.CompareTo(Value) == 0 && tempNode.below != null)
                         {
                             tempNode = tempNode.below;
                         }
@@ -175,7 +183,7 @@ namespace Lab1
                             }
                             else
                             {
-                                while (tempNode.Value.CompareTo(Value) >= 0 && tempNode.previous != null)
+                                while (tempNode.Value.CompareTo(Value) > 0 && tempNode.previous != null)
                                 {
                                     tempNode = tempNode.previous;
                                 }
@@ -198,7 +206,7 @@ namespace Lab1
                     }
                 }
 
-                if (tempNode.Value.CompareTo(Value)==0)
+                if (tempNode.Value.CompareTo(Value) == 0)
                 {
                     if (tempNode.previous == null)
                     {
@@ -209,7 +217,7 @@ namespace Lab1
                                 break;
                             }
                             Levels[i] = tempNode.next;
-                            tempNode.next.previous = null;
+                            tempNode.next.previous = tempNode.previous;
                             tempNode = tempNode.above;
                         }
                     }
@@ -220,7 +228,7 @@ namespace Lab1
                         {
                             if (tempNode == null)
                             {
-                                break;
+                                return;
                             }
                             var next = tempNode.next;
                             var prev = tempNode.previous;
@@ -234,5 +242,85 @@ namespace Lab1
 
             }
         }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            Node cur = Levels[0];
+            while (cur != null)
+            {
+                yield return cur.Value;
+                cur = cur.next;
+            }
+        }
+
+        public bool Contains(T Value)
+        {
+            if (Levels[0] == null)
+            {
+                return false;
+            }
+            else
+            {
+                Node tempNode = Levels[MaxLevel - 1];
+                for (int i = MaxLevel - 1; i >= 0; i--)
+                {
+                    if (Levels[i] != null)
+                    {
+                        if (tempNode == null)
+                        {
+                            tempNode = Levels[i];
+                        }
+                        if (tempNode.Value.CompareTo(Value) == 0)
+                        {
+                            return true;
+                        }
+                        else if (tempNode.Value.CompareTo(Value) > 0)
+                        {
+                            if (i != 0)
+                            {
+                                while (tempNode.previous != null && tempNode.previous.Value.CompareTo(Value) > 0)
+                                {
+                                    tempNode = tempNode.previous;
+                                }
+                                tempNode = tempNode.below;
+                            }
+                            else
+                            {
+                                while (tempNode.Value.CompareTo(Value) >= 0 && tempNode.previous != null)
+                                {
+                                    tempNode = tempNode.previous;
+                                    if (tempNode.Value.CompareTo(Value) == 0)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (tempNode.next == null && i != 0)
+                            {
+                                tempNode = tempNode.below;
+                            }
+                            else
+                            {
+                                while (tempNode.Value.CompareTo(Value) < 0 && tempNode.next != null)
+                                {
+                                    tempNode = tempNode.next;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        private bool CAS(ref Node location, Node comparand, Node newValue)
+        {
+            return comparand == Interlocked.CompareExchange<Node>(ref location, newValue, comparand);
+        }
     }
+
+
 }
