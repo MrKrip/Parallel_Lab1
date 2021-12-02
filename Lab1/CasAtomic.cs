@@ -33,6 +33,21 @@ namespace Lab1
                 }
                 if (acquiredLock) Monitor.Exit(locker);
                 return false;
-        }       
+        }
+
+        public static bool CAS(ref T Val,T Compare,T NewVal)
+        {
+            bool acquiredLock = false;
+            Monitor.Enter(locker, ref acquiredLock);
+            Console.WriteLine($"\nValue : {Val}\nValue to compare : {Compare}\nNew value(if Value == ValueToCompre) : {NewVal}\n");
+            if (EqualityComparer<T>.Default.Equals(Val, Compare))
+            {
+                Val = Compare;
+                if (acquiredLock) Monitor.Exit(locker);
+                return true;
+            }
+            if (acquiredLock) Monitor.Exit(locker);
+            return false;
+        }
     }
 }

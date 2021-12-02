@@ -36,6 +36,7 @@ namespace Lab1
             Node NewNode = new Node(Val);
             Node tempNode = Levels[MaxLevel - 1];
             Node[] TempNodes = new Node[MaxLevel];
+            Node CurrentNode = Levels[MaxLevel - 1];
             if (Levels[0] == null)
             {
                 Levels[0] = NewNode;
@@ -88,27 +89,42 @@ namespace Lab1
                     }
                 }
 
-                if (tempNode.next == null && tempNode.Value.CompareTo(Val) < 0)
+                if (CurrentNode.next == null && CurrentNode.Value.CompareTo(Val) < 0)
                 {
-                    var next = tempNode.next;
-                    NewNode.next = next;
-                    NewNode.previous = tempNode;
-                    tempNode.next = NewNode;
+                    do
+                    {
+                        CurrentNode = tempNode;
+                        while (CurrentNode == tempNode && CurrentNode.next != null && CurrentNode.next.Value.CompareTo(NewNode.Value) < 0)
+                        {
+                            CurrentNode = CurrentNode.next;
+                            tempNode = tempNode.next;
+                        }
+                        var next = CurrentNode.next;
+                        NewNode.next = next;
+                        NewNode.previous = CurrentNode;
+                    } while (!CAS(ref CurrentNode.next, tempNode.next, NewNode));
+
                 }
                 else
                 {
-                    var prev = tempNode.previous;
-                    NewNode.previous = prev;
-                    tempNode.previous = NewNode;
-                    NewNode.next = tempNode;
-                    if (prev != null)
+                    do
                     {
-                        prev.next = NewNode;
-                    }
+                        CurrentNode = tempNode;
+
+                        var prev = CurrentNode.previous;
+                        NewNode.previous = prev;
+                        CurrentNode.previous = NewNode;
+                        NewNode.next = CurrentNode;
+                        if (prev != null)
+                        {
+                            prev.next = NewNode;
+                        }
+                    } while (!CAS(ref CurrentNode.previous,tempNode.previous,NewNode));
                     if (NewNode.previous == null)
                     {
                         Levels[0] = NewNode;
                     }
+
                 }
                 tempNode = NewNode;
             }
