@@ -7,20 +7,46 @@ namespace Lab1
     {
         static void Main(string[] args)
         {
-            SkipList<int> test = new SkipList<int>(5);
-            for(int i=10;i>=0;i--)
-            {
-                test.Push(i);
-            }
+            MichelAndScott<int> test = new MichelAndScott<int>();
 
-            foreach(var a in test)
+            Thread kek = new Thread(() =>
             {
-                Console.WriteLine(a);
+                for (int i = 0; i < 3; i++)
+                    test.Push(i);
+            });
+            Thread kek1 = new Thread(() =>
+            {
+                for (int i = 3; i < 5; i++)
+                    test.Push(i);
+            });
+            Thread kek2 = new Thread(() =>
+            {
+                for (int i = 5; i < 8; i++)
+                    test.Push(i);
+            });
+
+            kek.Start();
+            kek1.Start();
+            kek2.Start();
+
+            while (kek.IsAlive || kek1.IsAlive || kek2.IsAlive)
+            { }
+            foreach (var a in test)
+            {
+                Console.Write(a + "->");
             }
-            var a1= test.Contains(5);
-            test.delete(5);
-            a1 = test.Contains(5);
-            test.delete(0);
+            Console.WriteLine();
+            Console.WriteLine(new string('*', 30));
+            Thread kek3 = new Thread(() => test.Pop());
+            kek3.Start();
+            while (kek3.IsAlive)
+            {
+
+            }
+            foreach (var a in test)
+            {
+                Console.Write(a + "->");
+            }
         }
     }
 }

@@ -31,9 +31,10 @@ namespace Lab1
             MaxLevel = Lvl;
         }
 
-        public void Push(T Val)
+        public void Push(object Val)
         {
-            Node NewNode = new Node(Val);
+            T val = (T)Val;
+            Node NewNode = new Node(val);
             Node tempNode = Levels[MaxLevel - 1];
             Node[] TempNodes = new Node[MaxLevel];
             Node CurrentNode = Levels[MaxLevel - 1];
@@ -41,6 +42,7 @@ namespace Lab1
             {
                 Levels[0] = NewNode;
                 tempNode = NewNode;
+                CurrentNode = tempNode;
             }
             else
             {
@@ -49,20 +51,22 @@ namespace Lab1
                     if (tempNode == null)
                     {
                         tempNode = Levels[i];
+                        CurrentNode = tempNode;
                     }
                     if (tempNode != null)
                     {
-                        if (tempNode.Value.CompareTo(Val) >= 0)
+                        if (tempNode.Value.CompareTo(val) >= 0)
                         {
                             if (i != 0)
                             {
-                                if (tempNode.previous != null && tempNode.previous.Value.CompareTo(Val) > 0)
+                                while (tempNode.previous != null && tempNode.previous.Value.CompareTo(val) > 0)
                                 {
                                     do
                                     {
                                         CurrentNode = tempNode;
                                     } while (!CAS(ref tempNode, CurrentNode, CurrentNode.previous));
                                 }
+
                                 do
                                 {
                                     CurrentNode = tempNode;
@@ -71,15 +75,13 @@ namespace Lab1
                             }
                             else
                             {
-                                while (tempNode.Value.CompareTo(Val) >= 0 && tempNode.previous != null)
+                                while (tempNode.Value.CompareTo(val) >= 0 && tempNode.previous != null)
                                 {
                                     do
                                     {
                                         CurrentNode = tempNode;
                                     } while (!CAS(ref tempNode, CurrentNode, CurrentNode.previous));
                                 }
-
-
                             }
                         }
                         else
@@ -91,7 +93,7 @@ namespace Lab1
                             }
                             else
                             {
-                                while (tempNode.Value.CompareTo(Val) < 0 && tempNode.next != null)
+                                while (tempNode.Value.CompareTo(val) < 0 && tempNode.next != null)
                                 {
                                     do
                                     {
@@ -104,7 +106,7 @@ namespace Lab1
                     }
                 }
 
-                if (CurrentNode.next == null && CurrentNode.Value.CompareTo(Val) < 0)
+                if (CurrentNode.next == null && CurrentNode.Value.CompareTo(val) < 0)
                 {
                     do
                     {
@@ -124,17 +126,25 @@ namespace Lab1
                 {
                     do
                     {
+                        while (tempNode.previous != null && tempNode.previous.Value.CompareTo(val) > 0)
+                        {
+                            do
+                            {
+                                CurrentNode = tempNode;
+                            } while (!CAS(ref tempNode, CurrentNode, CurrentNode.previous));
+
+                        }
                         CurrentNode = tempNode;
 
                         var prev = CurrentNode.previous;
                         NewNode.previous = prev;
-                        CurrentNode.previous = NewNode;
                         NewNode.next = CurrentNode;
                         if (prev != null)
                         {
                             prev.next = NewNode;
                         }
                     } while (!CAS(ref CurrentNode.previous, tempNode.previous, NewNode));
+
                     if (NewNode.previous == null)
                     {
                         Levels[0] = NewNode;
@@ -151,7 +161,7 @@ namespace Lab1
                     return;
                 }
 
-                Node temp = new Node(Val);
+                Node temp = new Node(val);
                 tempNode.above = temp;
                 temp.below = tempNode;
                 if (Levels[i] == null || TempNodes[i] == null)
@@ -162,7 +172,7 @@ namespace Lab1
                         Levels[i] = temp;
                     } while (!CAS(ref tempNode, CurrentNode, temp));
                 }
-                else if (TempNodes[i].Value.CompareTo(Val) >= 0)
+                else if (TempNodes[i].Value.CompareTo(val) >= 0)
                 {
                     do
                     {
@@ -191,9 +201,9 @@ namespace Lab1
 
         }
 
-        public void delete(T Value)
+        public void delete(object Value)
         {
-
+            T val = (T)Value;
             Node CurrentNode;
             if (Levels[0] == null)
             {
@@ -213,15 +223,15 @@ namespace Lab1
                                 CurrentNode = tempNode;
                             } while (!CAS(ref tempNode, CurrentNode, Levels[i]));
                         }
-                        if (tempNode.Value.CompareTo(Value) == 0 && tempNode.below != null)
+                        if (tempNode.Value.CompareTo(val) == 0 && tempNode.below != null)
                         {
                             tempNode = tempNode.below;
                         }
-                        else if (tempNode.Value.CompareTo(Value) > 0)
+                        else if (tempNode.Value.CompareTo(val) > 0)
                         {
                             if (i != 0)
                             {
-                                while (tempNode.previous != null && tempNode.previous.Value.CompareTo(Value) > 0)
+                                while (tempNode.previous != null && tempNode.previous.Value.CompareTo(val) > 0)
                                 {
                                     do
                                     {
@@ -232,7 +242,7 @@ namespace Lab1
                             }
                             else
                             {
-                                while (tempNode.Value.CompareTo(Value) > 0 && tempNode.previous != null)
+                                while (tempNode.Value.CompareTo(val) > 0 && tempNode.previous != null)
                                 {
                                     do
                                     {
@@ -249,7 +259,7 @@ namespace Lab1
                             }
                             else
                             {
-                                while (tempNode.Value.CompareTo(Value) < 0 && tempNode.next != null)
+                                while (tempNode.Value.CompareTo(val) < 0 && tempNode.next != null)
                                 {
                                     do
                                     {
@@ -261,7 +271,7 @@ namespace Lab1
                     }
                 }
 
-                if (tempNode.Value.CompareTo(Value) == 0)
+                if (tempNode.Value.CompareTo(val) == 0)
                 {
                     if (tempNode.previous == null)
                     {
@@ -278,8 +288,8 @@ namespace Lab1
                                 do
                                 {
                                     CurrentNode = tempNode;
-                                } while (!CAS(ref tempNode.next.previous,CurrentNode.next.previous,CurrentNode.previous));
-                            } while (!CAS(ref tempNode,CurrentNode,CurrentNode.above));
+                                } while (!CAS(ref tempNode.next.previous, CurrentNode.next.previous, CurrentNode.previous));
+                            } while (!CAS(ref tempNode, CurrentNode, CurrentNode.above));
                         }
                     }
                     else
@@ -298,10 +308,9 @@ namespace Lab1
                                 CurrentNode = tempNode;
                                 next = tempNode.next;
                                 prev = tempNode.previous;
-                            } while (!CAS(ref tempNode,CurrentNode,CurrentNode.above));                            
+                            } while (!CAS(ref tempNode, CurrentNode, CurrentNode.above));
                             next.previous = prev;
                             prev.next = next;
-                            tempNode = tempNode.above;
                         }
 
                     }
