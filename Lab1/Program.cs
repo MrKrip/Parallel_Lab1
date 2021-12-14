@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Lab1
 {
@@ -7,7 +8,7 @@ namespace Lab1
     {
         static void Main(string[] args)
         {
-            MichelAndScott<int> test = new MichelAndScott<int>();
+            Harris<int> test = new Harris<int>();
 
             Thread kek = new Thread(() =>
             {
@@ -37,16 +38,22 @@ namespace Lab1
             }
             Console.WriteLine();
             Console.WriteLine(new string('*', 30));
-            Thread kek3 = new Thread(() => test.Pop());
+            Task<bool> task = Task.Factory.StartNew<bool>(() => test.Find(4));
+            Console.WriteLine(task.Result);
+            Console.WriteLine(new string('*', 30));
+            Thread kek3 = new Thread(() => test.Delete(4));
             kek3.Start();
             while (kek3.IsAlive)
-            {
-
-            }
+            { }
             foreach (var a in test)
             {
                 Console.Write(a + "->");
             }
+            Console.WriteLine();
+            Console.WriteLine(new string('*', 30));
+            task = Task.Factory.StartNew<bool>(() => test.Find(4));
+            Console.WriteLine(task.Result);
+            Console.WriteLine(new string('*', 30));
         }
     }
 }
