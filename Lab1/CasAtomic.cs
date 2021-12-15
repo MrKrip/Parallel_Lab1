@@ -27,7 +27,7 @@ namespace Lab1
                 Console.WriteLine($"\nValue : {temp.Val}\nValue to compare : {temp.Compare}\nNew value(if Value == ValueToCompre) : {temp.NewVal}\n");
                 if (EqualityComparer<T>.Default.Equals(temp.Val, temp.Compare))
                 {
-                    temp.Val = temp.Compare;
+                    temp.Val = temp.NewVal;
                     if (acquiredLock) Monitor.Exit(locker);
                     return true;
                 }
@@ -42,7 +42,7 @@ namespace Lab1
             Console.WriteLine($"\nValue : {Val}\nValue to compare : {Compare}\nNew value(if Value == ValueToCompre) : {NewVal}\n");
             if (EqualityComparer<T>.Default.Equals(Val, Compare))
             {
-                Val = Compare;
+                Val = NewVal;
                 if (acquiredLock) Monitor.Exit(locker);
                 return true;
             }
