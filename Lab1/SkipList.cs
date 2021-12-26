@@ -68,8 +68,8 @@ namespace Lab1
         }
         public bool Delete(Node node)
         {
-            var previousItem = new Node[26];
-            var NextItem = new Node[26];
+            var previousItem = new Node[33];
+            var NextItem = new Node[33];
 
             while (true)
             {
