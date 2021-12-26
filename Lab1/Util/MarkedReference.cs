@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lab1.Util.Atomic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
